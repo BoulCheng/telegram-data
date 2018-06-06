@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springboot.sample" level="TRACE" />
+
+    <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>/usr/local/log/telegram-log.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <!--日志文件保留天数-->
+            <maxHistory>5</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </encoder>
+        <!--日志文件最大的大小-->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>100MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <appender name="asyncFileAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>500</queueSize>
+        <appender-ref ref="FILE" />
+    </appender>
+
+    <appender name="TELEGRAM_ERROR"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>/usr/local/log/telegram-error.log</File>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>/usr/local/log/telegram-error_%i.log</FileNamePattern>
+            <MinIndex>1</MinIndex>
+            <MaxIndex>5</MaxIndex>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </encoder>
+        <!--日志文件最大的大小-->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>10MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <appender name="asyncFileAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>500</queueSize>
+        <appender-ref ref="TELEGRAM_ERROR" />
+    </appender>
+
+    <!-- 不同的业务逻辑日志打印到指定文件夹-->
+    <logger name="TELEGRAM_ERROR_LOG" additivity="false" level="ERROR">
+        <appender-ref ref="TELEGRAM_ERROR"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>
